@@ -22,3 +22,14 @@
 | Postgres version | 16, 17, 18 | 16 | its a normal project and there are more resources for it if we ever get into any problem |
 | Database data | named volume, no volume | named volume | so that we don't have to download the data again and again and set up the database, extra work we can avoid |
 | Runtime image | distroless, alpine | alpine | it gives me something to debug when i get an error or something goes wrong |
+| Installing goose | `tool` directive in `go.mod`, `go install` per machine, run in Docker | `tool` directive (`go tool goose`) | so that everyone gets the version of goose we are using and uses the same one in every environment |
+| Migrations location | `migrations/` at root, `internal/db/migrations/` (embedded), `db/migrations/` | `migrations/` at root, sqlc queries in a central `queries/` folder later | migrations only need to run once as a separate step, so there is no need to copy them into our build; and all the queries are in one central place |
+| DB connection string for goose | Makefile builds it from `POSTGRES_*`, full `DATABASE_URL` in `.env`, pass on command line | full `DATABASE_URL` in `.env` | its easy for setting and using |
+| Missing `migrations/` folder | create it by hand once, `mkdir -p` in `migrate-create` | `mkdir -p` in `migrate-create` | so that we never face this error, as it creates the directory if it isn't there |
+| Migration file naming | timestamps (goose default), sequential (`-s`) | sequential | it helps me check which one was the first migration and follow them carefully |
+| Thread primary key | HN thread ID, surrogate UUID/serial + unique HN ID | HN thread ID (`INTEGER`) | it is already unique, so there is no need to add an extra column for that |
+| Thread month | one `DATE` (1st of month), `year` + `month` columns | `DATE NOT NULL UNIQUE` with `CHECK` that the day is 1 | so the same month is never saved twice; the code sets the date to the first of the month and the database check catches it if the day isn't 1 |
+| Thread month source | thread title, post timestamp, both | extract from both; if they match, save the first of that month (what to do on a mismatch is decided in Phase 2) | if we miss it from one we can get it from the other one, or check if both of them don't match |
+| raw_posts primary key | HN ID only, UUID with `gen_random_uuid()` + unique `source_id` | UUID with database default, `source_id` `UNIQUE NOT NULL` | using the default postgres uuid would be better cause it won't replicate the same UUID later |
+| Raw post content | only the `text` field, full HN item as `JSONB` | full item as `JSONB NOT NULL` | so it keeps its shape when we transform and refine the comment post |
+| Deleted posts | flag column, read `deleted` from the JSONB | `is_deleted BOOLEAN NOT NULL DEFAULT false`; `author` and `posted_at` nullable | somebody can delete the comment, and then HN may not return the author and posted date for that comment id |
