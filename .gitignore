@@ -1,0 +1,19 @@
+# Build output
+/bin/
+*.exe
+*.test
+
+# Test and coverage output
+*.out
+coverage.*
+
+# Secrets and local config (commit a .env.example instead)
+.env
+.env.*
+!.env.example
+
+# Editors and OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
