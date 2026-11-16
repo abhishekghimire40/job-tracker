@@ -183,6 +183,7 @@ When I ask for a review:
 
 Do not write the DECISIONS or LEARNING_LOG entries for me; you may tidy the
 wording if I ask.
+If i had already made a decision with a reason you can update the DECISIONS.md file when i ask and update it in my language with my approval.
 
 ## Session start
 
