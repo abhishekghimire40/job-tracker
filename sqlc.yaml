@@ -1,0 +1,17 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    # sqlc reads the goose migrations as the schema (it skips the Down parts)
+    schema: "migrations"
+    # hand-written SQL queries, one or more .sql files
+    queries: "queries"
+    gen:
+      go:
+        package: "db"
+        out: "internal/db"
+        sql_package: "pgx/v5"
+        overrides:
+          # NOT NULL date columns -> plain time.Time instead of pgtype.Date.
+          # Nullable date columns still get pgtype.Date (to represent NULL).
+          - db_type: "date"
+            go_type: "time.Time"

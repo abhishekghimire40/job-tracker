@@ -33,3 +33,9 @@
 | raw_posts primary key | HN ID only, UUID with `gen_random_uuid()` + unique `source_id` | UUID with database default, `source_id` `UNIQUE NOT NULL` | using the default postgres uuid would be better cause it won't replicate the same UUID later |
 | Raw post content | only the `text` field, full HN item as `JSONB` | full item as `JSONB NOT NULL` | so it keeps its shape when we transform and refine the comment post |
 | Deleted posts | flag column, read `deleted` from the JSONB | `is_deleted BOOLEAN NOT NULL DEFAULT false`; `author` and `posted_at` nullable | somebody can delete the comment, and then HN may not return the author and posted date for that comment id |
+| Installing sqlc | `tool` directive in `go.mod`, `go install` per machine, Docker image | `tool` directive (`go tool sqlc`) | it keeps the version the same for later use too, so that program updates won't affect our server |
+| sqlc driver | `pgx/v5`, `database/sql` | `pgx/v5` | it contains full postgres types and our database is in postgres, so we will use this |
+| Generated code package | `internal/db/`, `internal/store/`, `internal/sqlc/` | `internal/db/` | i won't use a `db` variable anywhere and it represents the code for the database |
+| Commit generated code | commit it, generate at build time and gitignore it | commit it | it is go code and part of our project |
+| Go type for `date` columns | `pgtype.Date` (pgx default), `time.Time` via sqlc override | `time.Time` | it may be harder if other layers/packages like MCP depend on pgx types, so `time.Time` makes it easier |
+| Other pgx types (UUID, nullable text/timestamps) | more sqlc overrides, convert at the package boundary, keep pgx types | open: keep pgx types for now, decide when writing `raw_posts` queries in Phase 2 | |

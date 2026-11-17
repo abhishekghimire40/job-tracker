@@ -1,4 +1,4 @@
-.PHONY: db-up run build up down migrate-up migrate-down migrate-status migrate-create
+.PHONY: db-up run build up down migrate-up migrate-down migrate-status migrate-create generate
 
 # --- Database settings, read from .env (single source of truth) ---
 # The shell loads .env (not Make's "include", which treats # as a comment
@@ -52,3 +52,7 @@ migrate-create:
 	@test -n "$(name)" || (echo "usage: make migrate-create name=<snake_case_name>" && exit 1)
 	mkdir -p migrations/
 	$(GOOSE) -s create $(name) sql
+
+## generate: generate Go code in internal/db from queries/ (see sqlc.yaml)
+generate:
+	go tool sqlc generate
