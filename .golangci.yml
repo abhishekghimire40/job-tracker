@@ -1,0 +1,6 @@
+version: "2"
+
+linters:
+  # The default set: errcheck, govet, ineffassign, staticcheck, unused.
+  # Add more here as you learn what each one catches.
+  default: standard
