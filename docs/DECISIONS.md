@@ -39,3 +39,8 @@
 | Commit generated code | commit it, generate at build time and gitignore it | commit it | it is go code and part of our project |
 | Go type for `date` columns | `pgtype.Date` (pgx default), `time.Time` via sqlc override | `time.Time` | it may be harder if other layers/packages like MCP depend on pgx types, so `time.Time` makes it easier |
 | Other pgx types (UUID, nullable text/timestamps) | more sqlc overrides, convert at the package boundary, keep pgx types | open: keep pgx types for now, decide when writing `raw_posts` queries in Phase 2 | |
+| Health routes | `/healthz` checks the DB too, split `/healthz` (app) + `/readyz` (DB) | split `/healthz` + `/readyz` | it helps us handle both separately, and we know easily which one is failing without digging deep |
+| Handler dependencies | closures, closures over a shared deps struct, one shared struct with methods, struct per feature | struct per feature with methods | it can expand easily without changing the handlers later and without messing with code already working; and other features won't have access to variables they don't need, some of which might be crucial and get exposed |
+| Route registration | `main` registers each route, each feature package registers its own routes (`RegisterRoutes(gin.IRouter)`) | feature package registers its own routes | |
+| `main` structure | everything in `main` with `log.Fatal`, `main` + `run() error` | `main` + `run() error` | |
+| DB check at startup | ping once and exit, start anyway and let `/readyz` report, ping with retries then exit | start anyway and let `/readyz` report (ping with retries planned for later) | so that it won't be too complex right now; we can rebuild this later |
